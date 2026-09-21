@@ -13,9 +13,9 @@ describe("safeRedirect", () => {
 
 describe("schemas", () => {
   it("login does not enforce the password length rule", () => {
-    expect(loginSchema.safeParse({ email: "a@b.co", password: "x" }).success).toBe(
-      true
-    )
+    expect(
+      loginSchema.safeParse({ email: "a@b.co", password: "x" }).success
+    ).toBe(true)
   })
 
   it("register requires matching passwords of valid length", () => {

@@ -1,9 +1,15 @@
-import { useNavigate, useRouter, redirect } from "@tanstack/react-router"
+import { redirect, useNavigate, useRouter } from "@tanstack/react-router"
 import { useQueryClient } from "@tanstack/react-query"
 import { session } from "@/lib/session"
 import { meQueryOptions } from "@/features/users/queries"
 import { ApiError } from "@/lib/http"
+import type { User } from "@/features/users/schemas"
 import type { RouterContext } from "@/router"
+
+/** Where a signed-in user lands: admins on the dashboard, others on their profile. */
+export function homeFor(me: Pick<User, "role">) {
+  return me.role === "admin" ? ("/admin" as const) : ("/profile" as const)
+}
 
 /** Sign out: forget the token, drop every cached record, go to /login. */
 export function useLogout() {
@@ -18,9 +24,21 @@ export function useLogout() {
   }
 }
 
-/** For login/register/forgot: signed-in users belong somewhere else. */
-export function redirectIfSignedIn() {
-  if (session.hasValidToken()) throw redirect({ to: "/" })
+/** For login/register/forgot: signed-in users belong in the app. */
+export async function redirectIfSignedIn({
+  context,
+}: {
+  context: RouterContext
+}) {
+  if (!session.hasValidToken()) return
+  try {
+    const me = await context.queryClient.ensureQueryData(meQueryOptions)
+    throw redirect({ to: homeFor(me) })
+  } catch (error) {
+    // a rejected token just means the user stays on the public page
+    if (error instanceof ApiError) return
+    throw error
+  }
 }
 
 /** Loads `me`, turning a rejected token into a redirect to /login. */

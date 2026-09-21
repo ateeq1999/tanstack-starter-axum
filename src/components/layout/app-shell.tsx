@@ -11,6 +11,7 @@ import {
   UserGroupIcon,
   UserIcon,
 } from "@hugeicons/core-free-icons"
+import { Logo } from "@/components/brand/logo"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -179,8 +180,8 @@ export function AppShell() {
   return (
     <SidebarProvider>
       <Sidebar collapsible="icon">
-        <SidebarHeader className="px-4 py-3 text-sm font-semibold">
-          Starter
+        <SidebarHeader className="px-3 py-3">
+          <Logo />
         </SidebarHeader>
         <SidebarContent>
           <NavGroup label="Account" items={userNav} />

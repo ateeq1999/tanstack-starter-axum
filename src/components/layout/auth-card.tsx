@@ -19,9 +19,9 @@ export function AuthCard({
   footer?: ReactNode
 }) {
   return (
-    <Card className="w-full max-w-sm">
+    <Card className="w-full max-w-sm shadow-sm">
       <CardHeader>
-        <CardTitle className="text-base">{title}</CardTitle>
+        <CardTitle className="font-heading text-xl">{title}</CardTitle>
         {description && <CardDescription>{description}</CardDescription>}
       </CardHeader>
       {children && (
