@@ -10,11 +10,13 @@ export default [
       "import/order": "off",
       "sort-imports": "off",
       "@typescript-eslint/array-type": "off",
+      "@typescript-eslint/naming-convention": "off",
+      "@typescript-eslint/no-unnecessary-condition": "off",
       "@typescript-eslint/require-await": "off",
       "pnpm/json-enforce-catalog": "off",
     },
   },
   {
-    ignores: ["eslint.config.js", ".prettierrc"],
+    ignores: ["eslint.config.js", ".prettierrc", "src/components/ui/**", "src/routeTree.gen.ts"],
   },
 ]
