@@ -13,7 +13,7 @@ import {
 import { FieldGroup } from "@/components/ui/field"
 import { authApi } from "@/features/auth/api"
 import { loginSchema, safeRedirect } from "@/features/auth/schemas"
-import { redirectIfSignedIn } from "@/features/auth/session-actions"
+import { homeFor, redirectIfSignedIn } from "@/features/auth/session-actions"
 import { meQueryOptions } from "@/features/users/queries"
 import { useApiForm } from "@/lib/use-api-form"
 import { session } from "@/lib/session"
@@ -44,7 +44,10 @@ function LoginPage() {
       await qc.fetchQuery(meQueryOptions)
     },
     onSuccess: async () => {
-      await router.navigate({ href: safeRedirect(search.redirect) ?? "/" })
+      const me = await qc.ensureQueryData(meQueryOptions)
+      const target = safeRedirect(search.redirect)
+      if (target) await router.navigate({ href: target })
+      else await router.navigate({ to: homeFor(me) })
     },
   })
 

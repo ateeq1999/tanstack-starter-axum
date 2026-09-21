@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router"
+import { z } from "zod"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import { useEffect, useState } from "react"
 import { HugeiconsIcon } from "@hugeicons/react"
@@ -34,8 +35,10 @@ import { listSearchSchema } from "@/features/users/schemas"
 import { ErrorScreen } from "@/components/common/screens"
 
 export const Route = createFileRoute("/_app/admin/users/")({
-  validateSearch: listSearchSchema,
-  loaderDeps: ({ search }) => search,
+  validateSearch: listSearchSchema.extend({
+    dialog: z.enum(["create", "invite"]).optional().catch(undefined),
+  }),
+  loaderDeps: ({ search: { dialog: _dialog, ...rest } }) => rest,
   loader: ({ context, deps }) => {
     // warm the cache without blocking navigation on the list
     void context.queryClient.prefetchQuery(usersListQueryOptions(deps))
@@ -53,12 +56,21 @@ const sizeOptions = [10, 20, 50, 100].map((n) => ({
 }))
 
 function UsersPage() {
-  const search = Route.useSearch()
+  const { dialog, ...search } = Route.useSearch()
   const navigate = Route.useNavigate()
   const qc = useQueryClient()
-  const [createOpen, setCreateOpen] = useState(false)
-  const [inviteOpen, setInviteOpen] = useState(false)
+  const [createOpen, setCreateOpen] = useState(dialog === "create")
+  const [inviteOpen, setInviteOpen] = useState(dialog === "invite")
   const [text, setText] = useState(search.q ?? "")
+
+  // a quick-action link opens a dialog once; drop the param so reloads don't
+  useEffect(() => {
+    if (dialog)
+      void navigate({
+        search: (p) => ({ ...p, dialog: undefined }),
+        replace: true,
+      })
+  }, [dialog, navigate])
 
   const { data, isPending, isError, error, refetch } = useQuery(
     usersListQueryOptions(search)
@@ -99,6 +111,7 @@ function UsersPage() {
     <div className="flex flex-col gap-4">
       <PageHeader
         title="Users"
+        description={data ? `${data.total.toLocaleString()} total` : undefined}
         actions={
           <>
             <Button variant="outline" onClick={() => setInviteOpen(true)}>

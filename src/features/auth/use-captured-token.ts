@@ -18,7 +18,6 @@ export function useCapturedToken(
     if (started.current || !token) return
     started.current = true
     redeem(token)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return token

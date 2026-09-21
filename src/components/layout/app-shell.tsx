@@ -12,6 +12,7 @@ import {
   UserIcon,
 } from "@hugeicons/core-free-icons"
 import { Logo } from "@/components/brand/logo"
+import { Breadcrumbs } from "./breadcrumbs"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -197,14 +198,15 @@ export function AppShell() {
         <SidebarRail />
       </Sidebar>
       <SidebarInset>
-        <header className="flex h-12 items-center gap-2 border-b px-4">
+        <header className="sticky top-0 z-10 flex h-12 items-center gap-2 border-b bg-background/85 px-4 backdrop-blur">
           <SidebarTrigger />
           <Separator orientation="vertical" className="h-4" />
+          <Breadcrumbs />
           <div className="ml-auto">
             <ThemeToggle />
           </div>
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 md:p-6">
+        <div className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-6 p-4 md:p-6">
           {!me.email_verified && <VerifyEmailBanner />}
           <Outlet />
         </div>
