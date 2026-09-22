@@ -14,6 +14,7 @@ import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as PublicRouteRouteImport } from './routes/_public/route'
 import { Route as AppAdminRouteRouteImport } from './routes/_app/admin/route'
 import { Route as AppProfileRouteImport } from './routes/_app/profile'
+import { Route as AppQrLoginRouteImport } from './routes/_app/qr-login'
 import { Route as AppSettingsRouteRouteImport } from './routes/_app/settings/route'
 import { Route as PublicConfirmEmailChangeRouteImport } from './routes/_public/confirm-email-change'
 import { Route as PublicForgotPasswordRouteImport } from './routes/_public/forgot-password'
@@ -24,8 +25,10 @@ import { Route as PublicVerifyEmailRouteImport } from './routes/_public/verify-e
 import { Route as AppAdminIndexRouteImport } from './routes/_app/admin/index'
 import { Route as AppSettingsIndexRouteImport } from './routes/_app/settings/index'
 import { Route as AppSettingsAccountRouteImport } from './routes/_app/settings/account'
+import { Route as AppSettingsApiKeysRouteImport } from './routes/_app/settings/api-keys'
 import { Route as AppSettingsAppearanceRouteImport } from './routes/_app/settings/appearance'
 import { Route as AppSettingsSecurityRouteImport } from './routes/_app/settings/security'
+import { Route as PublicOauthCallbackRouteImport } from './routes/_public/oauth/callback'
 import { Route as AppAdminUsersIndexRouteImport } from './routes/_app/admin/users/index'
 import { Route as AppAdminUsersUserIdRouteImport } from './routes/_app/admin/users/$userId'
 
@@ -50,6 +53,11 @@ const AppAdminRouteRoute = AppAdminRouteRouteImport.update({
 const AppProfileRoute = AppProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppQrLoginRoute = AppQrLoginRouteImport.update({
+  id: '/qr-login',
+  path: '/qr-login',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const AppSettingsRouteRoute = AppSettingsRouteRouteImport.update({
@@ -103,6 +111,11 @@ const AppSettingsAccountRoute = AppSettingsAccountRouteImport.update({
   path: '/account',
   getParentRoute: () => AppSettingsRouteRoute,
 } as any)
+const AppSettingsApiKeysRoute = AppSettingsApiKeysRouteImport.update({
+  id: '/api-keys',
+  path: '/api-keys',
+  getParentRoute: () => AppSettingsRouteRoute,
+} as any)
 const AppSettingsAppearanceRoute = AppSettingsAppearanceRouteImport.update({
   id: '/appearance',
   path: '/appearance',
@@ -112,6 +125,11 @@ const AppSettingsSecurityRoute = AppSettingsSecurityRouteImport.update({
   id: '/security',
   path: '/security',
   getParentRoute: () => AppSettingsRouteRoute,
+} as any)
+const PublicOauthCallbackRoute = PublicOauthCallbackRouteImport.update({
+  id: '/oauth/callback',
+  path: '/oauth/callback',
+  getParentRoute: () => PublicRouteRoute,
 } as any)
 const AppAdminUsersIndexRoute = AppAdminUsersIndexRouteImport.update({
   id: '/users/',
@@ -129,6 +147,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AppAdminRouteRouteWithChildren
   '/settings': typeof AppSettingsRouteRouteWithChildren
   '/profile': typeof AppProfileRoute
+  '/qr-login': typeof AppQrLoginRoute
   '/confirm-email-change': typeof PublicConfirmEmailChangeRoute
   '/forgot-password': typeof PublicForgotPasswordRoute
   '/login': typeof PublicLoginRoute
@@ -136,8 +155,10 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof PublicResetPasswordRoute
   '/verify-email': typeof PublicVerifyEmailRoute
   '/settings/account': typeof AppSettingsAccountRoute
+  '/settings/api-keys': typeof AppSettingsApiKeysRoute
   '/settings/appearance': typeof AppSettingsAppearanceRoute
   '/settings/security': typeof AppSettingsSecurityRoute
+  '/oauth/callback': typeof PublicOauthCallbackRoute
   '/admin/': typeof AppAdminIndexRoute
   '/settings/': typeof AppSettingsIndexRoute
   '/admin/users/$userId': typeof AppAdminUsersUserIdRoute
@@ -146,6 +167,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/profile': typeof AppProfileRoute
+  '/qr-login': typeof AppQrLoginRoute
   '/confirm-email-change': typeof PublicConfirmEmailChangeRoute
   '/forgot-password': typeof PublicForgotPasswordRoute
   '/login': typeof PublicLoginRoute
@@ -153,8 +175,10 @@ export interface FileRoutesByTo {
   '/reset-password': typeof PublicResetPasswordRoute
   '/verify-email': typeof PublicVerifyEmailRoute
   '/settings/account': typeof AppSettingsAccountRoute
+  '/settings/api-keys': typeof AppSettingsApiKeysRoute
   '/settings/appearance': typeof AppSettingsAppearanceRoute
   '/settings/security': typeof AppSettingsSecurityRoute
+  '/oauth/callback': typeof PublicOauthCallbackRoute
   '/admin': typeof AppAdminIndexRoute
   '/settings': typeof AppSettingsIndexRoute
   '/admin/users/$userId': typeof AppAdminUsersUserIdRoute
@@ -168,6 +192,7 @@ export interface FileRoutesById {
   '/_app/admin': typeof AppAdminRouteRouteWithChildren
   '/_app/settings': typeof AppSettingsRouteRouteWithChildren
   '/_app/profile': typeof AppProfileRoute
+  '/_app/qr-login': typeof AppQrLoginRoute
   '/_public/confirm-email-change': typeof PublicConfirmEmailChangeRoute
   '/_public/forgot-password': typeof PublicForgotPasswordRoute
   '/_public/login': typeof PublicLoginRoute
@@ -175,8 +200,10 @@ export interface FileRoutesById {
   '/_public/reset-password': typeof PublicResetPasswordRoute
   '/_public/verify-email': typeof PublicVerifyEmailRoute
   '/_app/settings/account': typeof AppSettingsAccountRoute
+  '/_app/settings/api-keys': typeof AppSettingsApiKeysRoute
   '/_app/settings/appearance': typeof AppSettingsAppearanceRoute
   '/_app/settings/security': typeof AppSettingsSecurityRoute
+  '/_public/oauth/callback': typeof PublicOauthCallbackRoute
   '/_app/admin/': typeof AppAdminIndexRoute
   '/_app/settings/': typeof AppSettingsIndexRoute
   '/_app/admin/users/$userId': typeof AppAdminUsersUserIdRoute
@@ -189,6 +216,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/settings'
     | '/profile'
+    | '/qr-login'
     | '/confirm-email-change'
     | '/forgot-password'
     | '/login'
@@ -196,8 +224,10 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/verify-email'
     | '/settings/account'
+    | '/settings/api-keys'
     | '/settings/appearance'
     | '/settings/security'
+    | '/oauth/callback'
     | '/admin/'
     | '/settings/'
     | '/admin/users/$userId'
@@ -206,6 +236,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/profile'
+    | '/qr-login'
     | '/confirm-email-change'
     | '/forgot-password'
     | '/login'
@@ -213,8 +244,10 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/verify-email'
     | '/settings/account'
+    | '/settings/api-keys'
     | '/settings/appearance'
     | '/settings/security'
+    | '/oauth/callback'
     | '/admin'
     | '/settings'
     | '/admin/users/$userId'
@@ -227,6 +260,7 @@ export interface FileRouteTypes {
     | '/_app/admin'
     | '/_app/settings'
     | '/_app/profile'
+    | '/_app/qr-login'
     | '/_public/confirm-email-change'
     | '/_public/forgot-password'
     | '/_public/login'
@@ -234,8 +268,10 @@ export interface FileRouteTypes {
     | '/_public/reset-password'
     | '/_public/verify-email'
     | '/_app/settings/account'
+    | '/_app/settings/api-keys'
     | '/_app/settings/appearance'
     | '/_app/settings/security'
+    | '/_public/oauth/callback'
     | '/_app/admin/'
     | '/_app/settings/'
     | '/_app/admin/users/$userId'
@@ -283,6 +319,13 @@ declare module '@tanstack/react-router' {
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof AppProfileRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/qr-login': {
+      id: '/_app/qr-login'
+      path: '/qr-login'
+      fullPath: '/qr-login'
+      preLoaderRoute: typeof AppQrLoginRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/_app/settings': {
@@ -355,6 +398,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppSettingsAccountRouteImport
       parentRoute: typeof AppSettingsRouteRoute
     }
+    '/_app/settings/api-keys': {
+      id: '/_app/settings/api-keys'
+      path: '/api-keys'
+      fullPath: '/settings/api-keys'
+      preLoaderRoute: typeof AppSettingsApiKeysRouteImport
+      parentRoute: typeof AppSettingsRouteRoute
+    }
     '/_app/settings/appearance': {
       id: '/_app/settings/appearance'
       path: '/appearance'
@@ -368,6 +418,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/settings/security'
       preLoaderRoute: typeof AppSettingsSecurityRouteImport
       parentRoute: typeof AppSettingsRouteRoute
+    }
+    '/_public/oauth/callback': {
+      id: '/_public/oauth/callback'
+      path: '/oauth/callback'
+      fullPath: '/oauth/callback'
+      preLoaderRoute: typeof PublicOauthCallbackRouteImport
+      parentRoute: typeof PublicRouteRoute
     }
     '/_app/admin/users/': {
       id: '/_app/admin/users/'
@@ -404,6 +461,7 @@ const AppAdminRouteRouteWithChildren = AppAdminRouteRoute._addFileChildren(
 
 interface AppSettingsRouteRouteChildren {
   AppSettingsAccountRoute: typeof AppSettingsAccountRoute
+  AppSettingsApiKeysRoute: typeof AppSettingsApiKeysRoute
   AppSettingsAppearanceRoute: typeof AppSettingsAppearanceRoute
   AppSettingsSecurityRoute: typeof AppSettingsSecurityRoute
   AppSettingsIndexRoute: typeof AppSettingsIndexRoute
@@ -411,6 +469,7 @@ interface AppSettingsRouteRouteChildren {
 
 const AppSettingsRouteRouteChildren: AppSettingsRouteRouteChildren = {
   AppSettingsAccountRoute: AppSettingsAccountRoute,
+  AppSettingsApiKeysRoute: AppSettingsApiKeysRoute,
   AppSettingsAppearanceRoute: AppSettingsAppearanceRoute,
   AppSettingsSecurityRoute: AppSettingsSecurityRoute,
   AppSettingsIndexRoute: AppSettingsIndexRoute,
@@ -423,12 +482,14 @@ interface AppRouteRouteChildren {
   AppAdminRouteRoute: typeof AppAdminRouteRouteWithChildren
   AppSettingsRouteRoute: typeof AppSettingsRouteRouteWithChildren
   AppProfileRoute: typeof AppProfileRoute
+  AppQrLoginRoute: typeof AppQrLoginRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppAdminRouteRoute: AppAdminRouteRouteWithChildren,
   AppSettingsRouteRoute: AppSettingsRouteRouteWithChildren,
   AppProfileRoute: AppProfileRoute,
+  AppQrLoginRoute: AppQrLoginRoute,
 }
 
 const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
@@ -442,6 +503,7 @@ interface PublicRouteRouteChildren {
   PublicRegisterRoute: typeof PublicRegisterRoute
   PublicResetPasswordRoute: typeof PublicResetPasswordRoute
   PublicVerifyEmailRoute: typeof PublicVerifyEmailRoute
+  PublicOauthCallbackRoute: typeof PublicOauthCallbackRoute
 }
 
 const PublicRouteRouteChildren: PublicRouteRouteChildren = {
@@ -451,6 +513,7 @@ const PublicRouteRouteChildren: PublicRouteRouteChildren = {
   PublicRegisterRoute: PublicRegisterRoute,
   PublicResetPasswordRoute: PublicResetPasswordRoute,
   PublicVerifyEmailRoute: PublicVerifyEmailRoute,
+  PublicOauthCallbackRoute: PublicOauthCallbackRoute,
 }
 
 const PublicRouteRouteWithChildren = PublicRouteRoute._addFileChildren(

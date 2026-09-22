@@ -15,7 +15,6 @@ import {
 } from "@hugeicons/core-free-icons"
 import { ErrorScreen } from "@/components/common/screens"
 import { PageHeader } from "@/components/layout/page-header"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { buttonVariants } from "@/components/ui/button"
 import {
@@ -34,8 +33,9 @@ import type { ChartConfig } from "@/components/ui/chart"
 import { Skeleton } from "@/components/ui/skeleton"
 import { healthQueryOptions } from "@/features/health/api"
 import { statsQueryOptions } from "@/features/stats/queries"
+import { UserAvatar } from "@/features/users/components/user-avatar"
 import { meQueryOptions } from "@/features/users/queries"
-import { initials, userLabel } from "@/features/users/schemas"
+import { userLabel } from "@/features/users/schemas"
 import { cn } from "@/lib/utils"
 
 export const Route = createFileRoute("/_app/admin/")({
@@ -230,9 +230,7 @@ function Dashboard() {
                       params={{ userId: u.id }}
                       className="-mx-2 flex items-center gap-3 px-2 py-2 hover:bg-muted"
                     >
-                      <Avatar size="sm">
-                        <AvatarFallback>{initials(u)}</AvatarFallback>
-                      </Avatar>
+                      <UserAvatar user={u} size="sm" />
                       <span className="flex min-w-0 flex-1 flex-col text-sm">
                         <span className="truncate font-medium">
                           {userLabel(u)}

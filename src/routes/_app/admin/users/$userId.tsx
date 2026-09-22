@@ -2,12 +2,12 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router"
 import { useSuspenseQuery } from "@tanstack/react-query"
 import { format } from "date-fns"
 import { PageHeader } from "@/components/layout/page-header"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { UserActions } from "@/features/users/components/user-actions"
+import { UserAvatar } from "@/features/users/components/user-avatar"
 import { userDetailQueryOptions } from "@/features/users/queries"
-import { initials, userLabel } from "@/features/users/schemas"
+import { userLabel } from "@/features/users/schemas"
 
 export const Route = createFileRoute("/_app/admin/users/$userId")({
   loader: ({ context, params }) =>
@@ -68,9 +68,7 @@ function UserDetailPage() {
       />
       <Card>
         <CardHeader className="flex-row items-center gap-3">
-          <Avatar size="lg">
-            <AvatarFallback>{initials(user)}</AvatarFallback>
-          </Avatar>
+          <UserAvatar user={user} size="lg" />
           <CardTitle>Details</CardTitle>
         </CardHeader>
         <CardContent>

@@ -13,7 +13,6 @@ import {
 } from "@hugeicons/core-free-icons"
 import { Logo } from "@/components/brand/logo"
 import { Breadcrumbs } from "./breadcrumbs"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -43,8 +42,9 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar"
 import { useLogout } from "@/features/auth/session-actions"
+import { UserAvatar } from "@/features/users/components/user-avatar"
 import { meQueryOptions } from "@/features/users/queries"
-import { initials, userLabel } from "@/features/users/schemas"
+import { userLabel } from "@/features/users/schemas"
 import { useTheme } from "./theme"
 import { VerifyEmailBanner } from "@/features/users/components/verify-banner"
 
@@ -121,9 +121,7 @@ function UserMenu() {
       <DropdownMenuTrigger
         render={
           <SidebarMenuButton size="lg" className="w-full">
-            <Avatar size="sm">
-              <AvatarFallback>{initials(me)}</AvatarFallback>
-            </Avatar>
+            <UserAvatar user={me} size="sm" />
             <div className="grid flex-1 text-left leading-tight">
               <span className="truncate font-medium">{userLabel(me)}</span>
               <span className="truncate text-muted-foreground">{me.email}</span>

@@ -68,6 +68,25 @@ export function useUpdateUser(id: string) {
   })
 }
 
+function applyMeUpdate(qc: ReturnType<typeof useQueryClient>, user: User) {
+  qc.setQueryData(userKeys.me, user)
+  qc.setQueryData(userKeys.detail(user.id), user)
+  void qc.invalidateQueries({ queryKey: userKeys.lists() })
+}
+
+export function useAvatarMutations() {
+  const qc = useQueryClient()
+  const upload = useMutation({
+    mutationFn: usersApi.uploadAvatar,
+    onSuccess: (user) => applyMeUpdate(qc, user),
+  })
+  const remove = useMutation({
+    mutationFn: usersApi.removeAvatar,
+    onSuccess: (user) => applyMeUpdate(qc, user),
+  })
+  return { upload, remove }
+}
+
 export function useDeleteUser() {
   const qc = useQueryClient()
   return useMutation({

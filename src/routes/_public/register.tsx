@@ -12,6 +12,7 @@ import { FieldGroup } from "@/components/ui/field"
 import { authApi } from "@/features/auth/api"
 import { registerSchema } from "@/features/auth/schemas"
 import { redirectIfSignedIn } from "@/features/auth/session-actions"
+import { SocialButtons } from "@/features/oauth/components/social-buttons"
 import { useApiForm } from "@/lib/use-api-form"
 
 export const Route = createFileRoute("/_public/register")({
@@ -101,6 +102,7 @@ function RegisterPage() {
           Create account
         </SubmitButton>
       </form>
+      <SocialButtons mode="signup" />
     </AuthCard>
   )
 }

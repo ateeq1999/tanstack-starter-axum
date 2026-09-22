@@ -28,9 +28,18 @@ export class ApiError extends Error {
 
 const BASE_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? ""
 
+/** For <img src> and full-page navigations (OAuth): the API path with the API origin prefixed. */
+export function apiUrl(path: string) {
+  return `${BASE_URL}${path}`
+}
+
 type Options = {
-  method?: "GET" | "POST" | "PATCH" | "DELETE"
+  method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE"
   body?: unknown
+  /** Sent as-is (e.g. an avatar upload). Wins over `body` when both are set. */
+  rawBody?: Blob
+  /** Extra headers, e.g. { "X-QR-Secret": secret }. */
+  headers?: Record<string, string>
   query?: Record<string, string | number | undefined>
   /** Login-style calls: a 401 is a normal answer, not an expired session. */
   skipExpire?: boolean
@@ -50,14 +59,21 @@ export async function http<T>(path: string, opts: Options = {}): Promise<T> {
   const headers: Record<string, string> = { Accept: "application/json" }
   const token = session.token
   if (token) headers.Authorization = `Bearer ${token}`
-  if (opts.body !== undefined) headers["Content-Type"] = "application/json"
+  if (opts.rawBody) {
+    headers["Content-Type"] = opts.rawBody.type || "application/octet-stream"
+  } else if (opts.body !== undefined) {
+    headers["Content-Type"] = "application/json"
+  }
+  if (opts.headers) Object.assign(headers, opts.headers)
 
   let res: Response
   try {
     res = await fetch(buildUrl(path, opts.query), {
       method: opts.method ?? "GET",
       headers,
-      body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
+      body:
+        opts.rawBody ??
+        (opts.body !== undefined ? JSON.stringify(opts.body) : undefined),
       signal: opts.signal,
     })
   } catch (err) {

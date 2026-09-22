@@ -38,4 +38,14 @@ export const usersApi = {
 
   remove: (id: string): Promise<void> =>
     http(`/api/v1/users/${id}`, { method: "DELETE" }),
+
+  uploadAvatar: async (file: File): Promise<User> =>
+    userSchema.parse(
+      await http("/api/v1/users/me/avatar", { method: "PUT", rawBody: file })
+    ),
+
+  removeAvatar: async (): Promise<User> =>
+    userSchema.parse(
+      await http("/api/v1/users/me/avatar", { method: "DELETE" })
+    ),
 }

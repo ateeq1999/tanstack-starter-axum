@@ -11,6 +11,8 @@ export const userSchema = z.object({
   is_active: z.boolean(),
   email_verified: z.boolean(),
   created_at: z.string(),
+  avatar_url: z.string().nullable().default(null),
+  has_password: z.boolean().default(true),
 })
 export type User = z.infer<typeof userSchema>
 

@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import { ApiError, http } from "../http"
+import { ApiError, apiUrl, http } from "../http"
 import { toServerErrors } from "../forms"
 import { session } from "../session"
 
@@ -40,6 +40,31 @@ describe("http", () => {
     expect(headers.Authorization).toBe("Bearer abc")
     expect(headers["Content-Type"]).toBe("application/json")
     expect(init.body).toBe('{"a":1}')
+  })
+
+  it("sends a rawBody blob as-is, with its content type", async () => {
+    const fetchMock = mockFetch(200, { ok: true })
+    const blob = new Blob(["fake-bytes"], { type: "image/png" })
+    await http("/api/v1/users/me/avatar", { method: "PUT", rawBody: blob })
+    const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit]
+    const headers = init.headers as Record<string, string>
+    expect(headers["Content-Type"]).toBe("image/png")
+    expect(init.body).toBe(blob)
+  })
+
+  it("merges custom headers, e.g. X-QR-Secret", async () => {
+    const fetchMock = mockFetch(200, { status: "pending" })
+    await http("/api/v1/auth/qr/sessions/x", {
+      headers: { "X-QR-Secret": "shh" },
+      skipExpire: true,
+    })
+    const [, init] = fetchMock.mock.calls[0] as unknown as [string, RequestInit]
+    const headers = init.headers as Record<string, string>
+    expect(headers["X-QR-Secret"]).toBe("shh")
+  })
+
+  it("apiUrl prefixes VITE_API_URL", () => {
+    expect(apiUrl("/api/v1/avatars/x.jpg")).toBe("/api/v1/avatars/x.jpg")
   })
 
   it("returns undefined for 204", async () => {

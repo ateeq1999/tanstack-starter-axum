@@ -14,6 +14,7 @@ export const Route = createFileRoute("/_app/settings")({
 const tabs = [
   { to: "/settings/account", label: "Account" },
   { to: "/settings/security", label: "Security" },
+  { to: "/settings/api-keys", label: "API keys" },
   { to: "/settings/appearance", label: "Appearance" },
 ] as const
 

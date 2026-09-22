@@ -13,10 +13,14 @@ import {
 import { FieldGroup } from "@/components/ui/field"
 import { authApi } from "@/features/auth/api"
 import { loginSchema, safeRedirect } from "@/features/auth/schemas"
-import { homeFor, redirectIfSignedIn } from "@/features/auth/session-actions"
-import { meQueryOptions } from "@/features/users/queries"
+import {
+  completeSignIn,
+  redirectIfSignedIn,
+} from "@/features/auth/session-actions"
 import { useApiForm } from "@/lib/use-api-form"
-import { session } from "@/lib/session"
+import { SocialButtons } from "@/features/oauth/components/social-buttons"
+import { PasskeyLoginButton } from "@/features/passkeys/components/passkey-login-button"
+import { QrLoginDialog } from "@/features/qr-login/components/qr-login-panel"
 
 export const Route = createFileRoute("/_public/login")({
   validateSearch: z.object({
@@ -36,18 +40,9 @@ function LoginPage() {
   const { form, formError } = useApiForm({
     schema: loginSchema,
     defaultValues: { email: "", password: "" },
-    request: async (value) => {
-      const token = await authApi.login(value)
-      qc.clear()
-      session.login(token.access_token)
-      // load `me` now so the guard on the next page finds it cached
-      await qc.fetchQuery(meQueryOptions)
-    },
-    onSuccess: async () => {
-      const me = await qc.ensureQueryData(meQueryOptions)
-      const target = safeRedirect(search.redirect)
-      if (target) await router.navigate({ href: target })
-      else await router.navigate({ to: homeFor(me) })
+    request: (value) => authApi.login(value),
+    onSuccess: async (token) => {
+      await completeSignIn(qc, router, token.access_token, search.redirect)
     },
   })
 
@@ -117,6 +112,11 @@ function LoginPage() {
           Forgot password?
         </Link>
       </form>
+      <SocialButtons redirect={safeRedirect(search.redirect)} mode="signin" />
+      <div className="flex flex-col gap-2">
+        <PasskeyLoginButton redirect={safeRedirect(search.redirect)} />
+        <QrLoginDialog redirect={safeRedirect(search.redirect)} />
+      </div>
     </AuthCard>
   )
 }

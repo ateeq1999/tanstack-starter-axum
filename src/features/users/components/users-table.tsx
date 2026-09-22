@@ -6,7 +6,6 @@ import {
 } from "@tanstack/react-table"
 import type { ColumnDef } from "@tanstack/react-table"
 import { format, formatDistanceToNow } from "date-fns"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import {
@@ -22,7 +21,8 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { initials, userLabel } from "@/features/users/schemas"
+import { UserAvatar } from "@/features/users/components/user-avatar"
+import { userLabel } from "@/features/users/schemas"
 import type { User } from "@/features/users/schemas"
 import { UserActions } from "./user-actions"
 
@@ -38,9 +38,7 @@ const columns: ColumnDef<User>[] = [
           params={{ userId: u.id }}
           className="flex items-center gap-2 hover:underline"
         >
-          <Avatar size="sm">
-            <AvatarFallback>{initials(u)}</AvatarFallback>
-          </Avatar>
+          <UserAvatar user={u} size="sm" />
           <span className="flex min-w-0 flex-col">
             <span className="truncate font-medium">{userLabel(u)}</span>
             {u.display_name && (
