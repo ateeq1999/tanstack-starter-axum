@@ -38,6 +38,7 @@ export function SocialButtons({
           <Button
             key={p.provider}
             variant="outline"
+            nativeButton={false}
             render={<a href={loginHref(p.login_url, redirect)} />}
           >
             <HugeiconsIcon icon={icons[p.provider]} data-icon="inline-start" />

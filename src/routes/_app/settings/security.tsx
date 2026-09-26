@@ -19,10 +19,12 @@ import {
 } from "@/components/ui/card"
 import { FieldGroup } from "@/components/ui/field"
 import { Spinner } from "@/components/ui/spinner"
-import { toast } from "@/components/ui/toast"
 import { authApi } from "@/features/auth/api"
 import { changePasswordSchema } from "@/features/auth/schemas"
 import { useLogout } from "@/features/auth/session-actions"
+import { PasswordStrengthMeter } from "@/features/auth/components/password-strength-meter"
+import { isWrongCurrentPassword } from "@/features/auth/errors"
+import { TwoFactorCard } from "@/features/two-factor/components/two-factor-card"
 import { PasskeysCard } from "@/features/passkeys/components/passkeys-card"
 import { meQueryOptions } from "@/features/users/queries"
 import { useApiForm } from "@/lib/use-api-form"
@@ -38,10 +40,15 @@ function SecuritySettings() {
   return (
     <div className="flex flex-col gap-4">
       {me.has_password ? (
-        <PasswordCard />
+        <PasswordCard knownInputs={[me.email, me.display_name]} />
       ) : (
         <SetPasswordCard email={me.email} />
       )}
+      <TwoFactorCard
+        enabled={me.totp_enabled}
+        hasPassword={me.has_password}
+        account={me.email}
+      />
       <PasskeysCard />
 
       <Card>
@@ -76,15 +83,24 @@ function SecuritySettings() {
   )
 }
 
-function PasswordCard() {
+function PasswordCard({
+  knownInputs,
+}: {
+  knownInputs: (string | null | undefined)[]
+}) {
+  const logout = useLogout()
   const { form, formError } = useApiForm({
     schema: changePasswordSchema,
     defaultValues: { current_password: "", new_password: "", confirm: "" },
+    // 400 covers both a wrong current password and a password-policy rejection.
+    badRequestField: (message) =>
+      isWrongCurrentPassword(message) ? "current_password" : "new_password",
     request: ({ current_password, new_password }) =>
       authApi.changePassword({ current_password, new_password }),
-    onSuccess: () => {
-      toast.add({ type: "success", title: "Password updated" })
-      form.reset()
+    // The server revokes every token on a password change, including this
+    // one, so sign out here instead of waiting for the next call to 401.
+    onSuccess: async () => {
+      await logout("password-changed")
     },
   })
 
@@ -118,6 +134,12 @@ function PasswordCard() {
                   field={field}
                   label="New password"
                   autoComplete="new-password"
+                  below={
+                    <PasswordStrengthMeter
+                      password={field.state.value}
+                      knownInputs={knownInputs}
+                    />
+                  }
                   description="8-128 characters."
                 />
               )}

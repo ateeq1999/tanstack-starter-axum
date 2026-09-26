@@ -33,15 +33,18 @@ export async function completeSignIn(
   else await router.navigate({ to: homeFor(me) })
 }
 
-/** Sign out: forget the token, drop every cached record, go to /login. */
+/**
+ * Sign out: forget the token, drop every cached record, go to /login.
+ * `reason` selects the notice shown there (e.g. "password-changed").
+ */
 export function useLogout() {
   const qc = useQueryClient()
   const navigate = useNavigate()
   const router = useRouter()
-  return async () => {
+  return async (reason?: string) => {
     session.clear()
     qc.clear()
-    await navigate({ to: "/login" })
+    await navigate({ to: "/login", search: reason ? { reason } : {} })
     void router.invalidate()
   }
 }
@@ -77,7 +80,13 @@ export async function requireMe(
   try {
     return await context.queryClient.ensureQueryData(meQueryOptions)
   } catch (error) {
-    if (error instanceof ApiError && error.status === 401) {
+    // A 401 clears the session, and the session-ended handler also clears the
+    // query cache, which cancels this very request: the caller then sees a
+    // CancelledError instead of the ApiError. "No token any more" covers both.
+    if (
+      (error instanceof ApiError && error.status === 401) ||
+      !session.hasValidToken()
+    ) {
       throw redirect({
         to: "/login",
         search: {

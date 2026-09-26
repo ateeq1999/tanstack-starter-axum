@@ -52,6 +52,55 @@ export const tokenResponseSchema = z.object({
   expires_in: z.number(),
 })
 
+/** Password login for an account with two-factor on: no session yet, only a short-lived token. */
+export const totpRequiredSchema = z.object({
+  requires_totp: z.literal(true),
+  pending_token: z.string(),
+})
+
+/** `POST /auth/login` returns either a session or the two-factor marker. */
+export const loginResponseSchema = z.union([
+  totpRequiredSchema,
+  tokenResponseSchema,
+])
+export type LoginResponse = z.infer<typeof loginResponseSchema>
+
+// Two-factor sign-in step: an authenticator code, or a recovery code.
+export const authenticatorCodeSchema = z
+  .string()
+  .trim()
+  .regex(/^\d{6}$/, "Enter the 6-digit code")
+
+export const recoveryCodeSchema = z
+  .string()
+  .transform(normalizeRecoveryCode)
+  .pipe(
+    z
+      .string()
+      .regex(
+        /^[A-Z0-9]{5}-[A-Z0-9]{5}$/,
+        "Recovery codes look like XXXXX-XXXXX"
+      )
+  )
+
+/**
+ * The server hashes the exact string it issued (uppercase, one hyphen), so
+ * tidy what people type: trim, uppercase, and add the hyphen if it was left out.
+ */
+export function normalizeRecoveryCode(input: string): string {
+  const compact = input.trim().toUpperCase().replace(/\s+/g, "")
+  if (/^[A-Z0-9]{10}$/.test(compact))
+    return `${compact.slice(0, 5)}-${compact.slice(5)}`
+  return compact
+}
+
+export type TotpCodeMode = "authenticator" | "recovery"
+
+export const totpCodeFormSchema = (mode: TotpCodeMode) =>
+  z.object({
+    code: mode === "recovery" ? recoveryCodeSchema : authenticatorCodeSchema,
+  })
+
 /** Only same-origin absolute paths are accepted as post-login targets. */
 export function safeRedirect(target: string | undefined): string | undefined {
   if (!target || !target.startsWith("/") || target.startsWith("//")) return

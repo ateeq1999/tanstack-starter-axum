@@ -12,6 +12,7 @@ import { FieldGroup } from "@/components/ui/field"
 import { authApi } from "@/features/auth/api"
 import { registerSchema } from "@/features/auth/schemas"
 import { redirectIfSignedIn } from "@/features/auth/session-actions"
+import { PasswordStrengthMeter } from "@/features/auth/components/password-strength-meter"
 import { SocialButtons } from "@/features/oauth/components/social-buttons"
 import { useApiForm } from "@/lib/use-api-form"
 
@@ -27,6 +28,7 @@ function RegisterPage() {
     schema: registerSchema,
     defaultValues: { email: "", password: "", confirm: "" },
     conflictField: "email",
+    badRequestField: "password",
     request: ({ email, password }) => authApi.register({ email, password }),
     onSuccess: (_user, value) => setSentTo(value.email),
   })
@@ -81,6 +83,12 @@ function RegisterPage() {
                 field={field}
                 label="Password"
                 autoComplete="new-password"
+                below={
+                  <PasswordStrengthMeter
+                    password={field.state.value}
+                    knownInputs={[field.form.state.values.email]}
+                  />
+                }
                 description="8-128 characters."
               />
             )}

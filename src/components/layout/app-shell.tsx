@@ -3,6 +3,8 @@ import { useSuspenseQuery } from "@tanstack/react-query"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
   DashboardSquare01Icon,
+  Files01Icon,
+  Task01Icon,
   Logout01Icon,
   Moon02Icon,
   Settings01Icon,
@@ -49,7 +51,13 @@ import { useTheme } from "./theme"
 import { VerifyEmailBanner } from "@/features/users/components/verify-banner"
 
 type NavItem = {
-  to: "/profile" | "/settings/account" | "/admin" | "/admin/users"
+  to:
+    | "/profile"
+    | "/media"
+    | "/settings/account"
+    | "/admin"
+    | "/admin/users"
+    | "/admin/audit-log"
   label: string
   icon: typeof UserIcon
   match: string
@@ -58,6 +66,7 @@ type NavItem = {
 
 const userNav: NavItem[] = [
   { to: "/profile", label: "Profile", icon: UserIcon, match: "/profile" },
+  { to: "/media", label: "Media", icon: Files01Icon, match: "/media" },
   {
     to: "/settings/account",
     label: "Settings",
@@ -79,6 +88,12 @@ const adminNav: NavItem[] = [
     label: "Users",
     icon: UserGroupIcon,
     match: "/admin/users",
+  },
+  {
+    to: "/admin/audit-log",
+    label: "Audit log",
+    icon: Task01Icon,
+    match: "/admin/audit-log",
   },
 ]
 

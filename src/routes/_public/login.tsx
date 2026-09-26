@@ -12,6 +12,8 @@ import {
 } from "@/components/common/form-fields"
 import { FieldGroup } from "@/components/ui/field"
 import { authApi } from "@/features/auth/api"
+import { TotpLoginStep } from "@/features/auth/components/totp-login-step"
+import { loginStepFor } from "@/features/auth/login-flow"
 import { loginSchema, safeRedirect } from "@/features/auth/schemas"
 import {
   completeSignIn,
@@ -31,18 +33,68 @@ export const Route = createFileRoute("/_public/login")({
   component: LoginPage,
 })
 
+const NOTICES: Record<string, string> = {
+  "session-expired": "Your session expired. Please sign in again.",
+  "password-changed": "Password changed, please sign in again.",
+}
+
 function LoginPage() {
   const search = Route.useSearch()
+  const redirect = safeRedirect(search.redirect)
+  // Kept in memory only, never in storage: it is a bearer for the 2FA step.
+  const [pendingToken, setPendingToken] = useState<string>()
+  const [notice, setNotice] = useState<string | undefined>(
+    search.reason ? NOTICES[search.reason] : undefined
+  )
+
+  if (pendingToken) {
+    return (
+      <TotpLoginStep
+        pendingToken={pendingToken}
+        redirect={redirect}
+        onRestart={(message) => {
+          setPendingToken(undefined)
+          setNotice(message)
+        }}
+      />
+    )
+  }
+
+  return (
+    <PasswordStep
+      redirect={redirect}
+      notice={notice}
+      onDismissNotice={() => setNotice(undefined)}
+      onTotpRequired={setPendingToken}
+    />
+  )
+}
+
+function PasswordStep({
+  redirect,
+  notice,
+  onDismissNotice,
+  onTotpRequired,
+}: {
+  redirect?: string
+  notice?: string
+  onDismissNotice: () => void
+  onTotpRequired: (pendingToken: string) => void
+}) {
   const router = useRouter()
   const qc = useQueryClient()
-  const [notice, setNotice] = useState(search.reason === "session-expired")
 
-  const { form, formError } = useApiForm({
+  const { form, formError, formErrorStatus } = useApiForm({
     schema: loginSchema,
     defaultValues: { email: "", password: "" },
     request: (value) => authApi.login(value),
-    onSuccess: async (token) => {
-      await completeSignIn(qc, router, token.access_token, search.redirect)
+    onSuccess: async (response) => {
+      const step = loginStepFor(response)
+      if (step.kind === "totp") {
+        onTotpRequired(step.pendingToken)
+        return
+      }
+      await completeSignIn(qc, router, step.accessToken, redirect)
     },
   })
 
@@ -50,7 +102,10 @@ function LoginPage() {
     ? "Check your inbox for the verification link, then sign in."
     : formError?.includes("disabled")
       ? "Contact support if you think this is a mistake."
-      : undefined
+      : formErrorStatus === 401
+        ? // Lockout returns the same generic 401, so never try to detect it.
+          "Too many attempts? Wait a few minutes or reset your password."
+        : undefined
 
   return (
     <AuthCard
@@ -68,8 +123,8 @@ function LoginPage() {
       {notice && (
         <Alert>
           <AlertDescription>
-            Your session expired. Please sign in again.{" "}
-            <button className="underline" onClick={() => setNotice(false)}>
+            {notice}{" "}
+            <button className="underline" onClick={onDismissNotice}>
               Dismiss
             </button>
           </AlertDescription>
@@ -100,7 +155,19 @@ function LoginPage() {
         </FieldGroup>
         <div aria-live="polite" className="flex flex-col gap-2">
           <FormError message={formError} />
-          {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
+          {hint && (
+            <p className="text-xs text-muted-foreground">
+              {hint}
+              {formErrorStatus === 401 && (
+                <>
+                  {" "}
+                  <Link to="/forgot-password" className="underline">
+                    Reset it
+                  </Link>
+                </>
+              )}
+            </p>
+          )}
         </div>
         <SubmitButton form={form} pendingLabel="Signing in…">
           Sign in
@@ -112,10 +179,10 @@ function LoginPage() {
           Forgot password?
         </Link>
       </form>
-      <SocialButtons redirect={safeRedirect(search.redirect)} mode="signin" />
+      <SocialButtons redirect={redirect} mode="signin" />
       <div className="flex flex-col gap-2">
-        <PasskeyLoginButton redirect={safeRedirect(search.redirect)} />
-        <QrLoginDialog redirect={safeRedirect(search.redirect)} />
+        <PasskeyLoginButton redirect={redirect} />
+        <QrLoginDialog redirect={redirect} />
       </div>
     </AuthCard>
   )

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useId, useState } from "react"
 import type { ComponentProps, ReactNode } from "react"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Alert02Icon, ViewIcon, ViewOffIcon } from "@hugeicons/core-free-icons"
@@ -30,6 +30,16 @@ export interface FieldLike {
   handleChange: (value: any) => void
 }
 
+/**
+ * DOM ids must be unique per page, but field names are not: a dialog can show
+ * `current_password` while the page behind it has one too. Suffix with useId so
+ * labels and aria-describedby always bind to their own input.
+ */
+function useDomId(name: string) {
+  const uid = useId()
+  return `${name}-${uid}`
+}
+
 function fieldErrors(field: FieldLike) {
   if (!field.state.meta.isTouched && !field.form.state.isSubmitted) return []
   return field.state.meta.errors.map((e: unknown) => ({
@@ -57,13 +67,14 @@ export function TextField({
 }: TextFieldProps) {
   const errors = fieldErrors(field)
   const invalid = errors.length > 0
-  const errorId = `${field.name}-error`
+  const id = useDomId(field.name)
+  const errorId = `${id}-error`
   return (
     <Field data-invalid={invalid}>
-      <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
+      <FieldLabel htmlFor={id}>{label}</FieldLabel>
       <Input
         {...inputProps}
-        id={field.name}
+        id={id}
         name={field.name}
         value={field.state.value ?? ""}
         onBlur={field.handleBlur}
@@ -82,22 +93,26 @@ export function PasswordField({
   label,
   autoComplete = "current-password",
   description,
+  below,
 }: {
   field: FieldLike
   label: string
   autoComplete?: "current-password" | "new-password"
   description?: ReactNode
+  /** Extra content under the input, e.g. a strength meter. */
+  below?: ReactNode
 }) {
   const [visible, setVisible] = useState(false)
   const errors = fieldErrors(field)
   const invalid = errors.length > 0
-  const errorId = `${field.name}-error`
+  const id = useDomId(field.name)
+  const errorId = `${id}-error`
   return (
     <Field data-invalid={invalid}>
-      <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
+      <FieldLabel htmlFor={id}>{label}</FieldLabel>
       <div className="relative">
         <Input
-          id={field.name}
+          id={id}
           name={field.name}
           type={visible ? "text" : "password"}
           autoComplete={autoComplete}
@@ -120,6 +135,7 @@ export function PasswordField({
           <HugeiconsIcon icon={visible ? ViewOffIcon : ViewIcon} />
         </Button>
       </div>
+      {below}
       {description && <FieldDescription>{description}</FieldDescription>}
       <FieldError id={errorId} errors={errors} />
     </Field>
@@ -135,16 +151,17 @@ export function SelectField<T extends string>({
   label: string
   options: { value: T; label: string }[]
 }) {
+  const id = useDomId(field.name)
   const errors = fieldErrors(field)
   return (
     <Field data-invalid={errors.length > 0}>
-      <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
+      <FieldLabel htmlFor={id}>{label}</FieldLabel>
       <Select
         value={field.state.value}
         onValueChange={(v) => field.handleChange(v)}
         items={options}
       >
-        <SelectTrigger id={field.name} className="w-full">
+        <SelectTrigger id={id} className="w-full">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
@@ -171,14 +188,15 @@ export function SwitchField({
   description?: string
   disabled?: boolean
 }) {
+  const id = useDomId(field.name)
   return (
     <Field orientation="horizontal">
       <div className="flex flex-1 flex-col gap-0.5">
-        <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
+        <FieldLabel htmlFor={id}>{label}</FieldLabel>
         {description && <FieldDescription>{description}</FieldDescription>}
       </div>
       <Switch
-        id={field.name}
+        id={id}
         checked={Boolean(field.state.value)}
         onCheckedChange={(v) => field.handleChange(v)}
         disabled={disabled}

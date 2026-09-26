@@ -13,6 +13,7 @@ const mk = (id: string, over: Partial<User>): User => ({
   created_at: "2026-09-01T00:00:00Z",
   avatar_url: null,
   has_password: true,
+  totp_enabled: false,
   ...over,
 })
 

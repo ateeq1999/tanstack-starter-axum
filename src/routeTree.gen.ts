@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as PublicRouteRouteImport } from './routes/_public/route'
 import { Route as AppAdminRouteRouteImport } from './routes/_app/admin/route'
+import { Route as AppMediaRouteImport } from './routes/_app/media'
 import { Route as AppProfileRouteImport } from './routes/_app/profile'
 import { Route as AppQrLoginRouteImport } from './routes/_app/qr-login'
 import { Route as AppSettingsRouteRouteImport } from './routes/_app/settings/route'
@@ -23,6 +24,7 @@ import { Route as PublicRegisterRouteImport } from './routes/_public/register'
 import { Route as PublicResetPasswordRouteImport } from './routes/_public/reset-password'
 import { Route as PublicVerifyEmailRouteImport } from './routes/_public/verify-email'
 import { Route as AppAdminIndexRouteImport } from './routes/_app/admin/index'
+import { Route as AppAdminAuditLogRouteImport } from './routes/_app/admin/audit-log'
 import { Route as AppSettingsIndexRouteImport } from './routes/_app/settings/index'
 import { Route as AppSettingsAccountRouteImport } from './routes/_app/settings/account'
 import { Route as AppSettingsApiKeysRouteImport } from './routes/_app/settings/api-keys'
@@ -48,6 +50,11 @@ const PublicRouteRoute = PublicRouteRouteImport.update({
 const AppAdminRouteRoute = AppAdminRouteRouteImport.update({
   id: '/admin',
   path: '/admin',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppMediaRoute = AppMediaRouteImport.update({
+  id: '/media',
+  path: '/media',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const AppProfileRoute = AppProfileRouteImport.update({
@@ -101,6 +108,11 @@ const AppAdminIndexRoute = AppAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppAdminRouteRoute,
 } as any)
+const AppAdminAuditLogRoute = AppAdminAuditLogRouteImport.update({
+  id: '/audit-log',
+  path: '/audit-log',
+  getParentRoute: () => AppAdminRouteRoute,
+} as any)
 const AppSettingsIndexRoute = AppSettingsIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -146,6 +158,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AppAdminRouteRouteWithChildren
   '/settings': typeof AppSettingsRouteRouteWithChildren
+  '/media': typeof AppMediaRoute
   '/profile': typeof AppProfileRoute
   '/qr-login': typeof AppQrLoginRoute
   '/confirm-email-change': typeof PublicConfirmEmailChangeRoute
@@ -154,6 +167,7 @@ export interface FileRoutesByFullPath {
   '/register': typeof PublicRegisterRoute
   '/reset-password': typeof PublicResetPasswordRoute
   '/verify-email': typeof PublicVerifyEmailRoute
+  '/admin/audit-log': typeof AppAdminAuditLogRoute
   '/settings/account': typeof AppSettingsAccountRoute
   '/settings/api-keys': typeof AppSettingsApiKeysRoute
   '/settings/appearance': typeof AppSettingsAppearanceRoute
@@ -166,6 +180,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/media': typeof AppMediaRoute
   '/profile': typeof AppProfileRoute
   '/qr-login': typeof AppQrLoginRoute
   '/confirm-email-change': typeof PublicConfirmEmailChangeRoute
@@ -174,6 +189,7 @@ export interface FileRoutesByTo {
   '/register': typeof PublicRegisterRoute
   '/reset-password': typeof PublicResetPasswordRoute
   '/verify-email': typeof PublicVerifyEmailRoute
+  '/admin/audit-log': typeof AppAdminAuditLogRoute
   '/settings/account': typeof AppSettingsAccountRoute
   '/settings/api-keys': typeof AppSettingsApiKeysRoute
   '/settings/appearance': typeof AppSettingsAppearanceRoute
@@ -191,6 +207,7 @@ export interface FileRoutesById {
   '/_public': typeof PublicRouteRouteWithChildren
   '/_app/admin': typeof AppAdminRouteRouteWithChildren
   '/_app/settings': typeof AppSettingsRouteRouteWithChildren
+  '/_app/media': typeof AppMediaRoute
   '/_app/profile': typeof AppProfileRoute
   '/_app/qr-login': typeof AppQrLoginRoute
   '/_public/confirm-email-change': typeof PublicConfirmEmailChangeRoute
@@ -199,6 +216,7 @@ export interface FileRoutesById {
   '/_public/register': typeof PublicRegisterRoute
   '/_public/reset-password': typeof PublicResetPasswordRoute
   '/_public/verify-email': typeof PublicVerifyEmailRoute
+  '/_app/admin/audit-log': typeof AppAdminAuditLogRoute
   '/_app/settings/account': typeof AppSettingsAccountRoute
   '/_app/settings/api-keys': typeof AppSettingsApiKeysRoute
   '/_app/settings/appearance': typeof AppSettingsAppearanceRoute
@@ -215,6 +233,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/settings'
+    | '/media'
     | '/profile'
     | '/qr-login'
     | '/confirm-email-change'
@@ -223,6 +242,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/verify-email'
+    | '/admin/audit-log'
     | '/settings/account'
     | '/settings/api-keys'
     | '/settings/appearance'
@@ -235,6 +255,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/media'
     | '/profile'
     | '/qr-login'
     | '/confirm-email-change'
@@ -243,6 +264,7 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/verify-email'
+    | '/admin/audit-log'
     | '/settings/account'
     | '/settings/api-keys'
     | '/settings/appearance'
@@ -259,6 +281,7 @@ export interface FileRouteTypes {
     | '/_public'
     | '/_app/admin'
     | '/_app/settings'
+    | '/_app/media'
     | '/_app/profile'
     | '/_app/qr-login'
     | '/_public/confirm-email-change'
@@ -267,6 +290,7 @@ export interface FileRouteTypes {
     | '/_public/register'
     | '/_public/reset-password'
     | '/_public/verify-email'
+    | '/_app/admin/audit-log'
     | '/_app/settings/account'
     | '/_app/settings/api-keys'
     | '/_app/settings/appearance'
@@ -312,6 +336,13 @@ declare module '@tanstack/react-router' {
       path: '/admin'
       fullPath: '/admin'
       preLoaderRoute: typeof AppAdminRouteRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/media': {
+      id: '/_app/media'
+      path: '/media'
+      fullPath: '/media'
+      preLoaderRoute: typeof AppMediaRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/_app/profile': {
@@ -384,6 +415,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppAdminIndexRouteImport
       parentRoute: typeof AppAdminRouteRoute
     }
+    '/_app/admin/audit-log': {
+      id: '/_app/admin/audit-log'
+      path: '/audit-log'
+      fullPath: '/admin/audit-log'
+      preLoaderRoute: typeof AppAdminAuditLogRouteImport
+      parentRoute: typeof AppAdminRouteRoute
+    }
     '/_app/settings/': {
       id: '/_app/settings/'
       path: '/'
@@ -444,12 +482,14 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppAdminRouteRouteChildren {
+  AppAdminAuditLogRoute: typeof AppAdminAuditLogRoute
   AppAdminIndexRoute: typeof AppAdminIndexRoute
   AppAdminUsersUserIdRoute: typeof AppAdminUsersUserIdRoute
   AppAdminUsersIndexRoute: typeof AppAdminUsersIndexRoute
 }
 
 const AppAdminRouteRouteChildren: AppAdminRouteRouteChildren = {
+  AppAdminAuditLogRoute: AppAdminAuditLogRoute,
   AppAdminIndexRoute: AppAdminIndexRoute,
   AppAdminUsersUserIdRoute: AppAdminUsersUserIdRoute,
   AppAdminUsersIndexRoute: AppAdminUsersIndexRoute,
@@ -481,6 +521,7 @@ const AppSettingsRouteRouteWithChildren =
 interface AppRouteRouteChildren {
   AppAdminRouteRoute: typeof AppAdminRouteRouteWithChildren
   AppSettingsRouteRoute: typeof AppSettingsRouteRouteWithChildren
+  AppMediaRoute: typeof AppMediaRoute
   AppProfileRoute: typeof AppProfileRoute
   AppQrLoginRoute: typeof AppQrLoginRoute
 }
@@ -488,6 +529,7 @@ interface AppRouteRouteChildren {
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppAdminRouteRoute: AppAdminRouteRouteWithChildren,
   AppSettingsRouteRoute: AppSettingsRouteRouteWithChildren,
+  AppMediaRoute: AppMediaRoute,
   AppProfileRoute: AppProfileRoute,
   AppQrLoginRoute: AppQrLoginRoute,
 }

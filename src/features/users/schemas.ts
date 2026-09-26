@@ -13,6 +13,7 @@ export const userSchema = z.object({
   created_at: z.string(),
   avatar_url: z.string().nullable().default(null),
   has_password: z.boolean().default(true),
+  totp_enabled: z.boolean().default(false),
 })
 export type User = z.infer<typeof userSchema>
 

@@ -11,7 +11,10 @@ import { buttonVariants } from "@/components/ui/button"
 import { FieldGroup } from "@/components/ui/field"
 import { authApi } from "@/features/auth/api"
 import { resetSchema } from "@/features/auth/schemas"
+import { PasswordStrengthMeter } from "@/features/auth/components/password-strength-meter"
+import { isLinkProblem } from "@/features/auth/errors"
 import { useCapturedToken } from "@/features/auth/use-captured-token"
+import { ApiError } from "@/lib/http"
 import { useApiForm } from "@/lib/use-api-form"
 
 // Serves both password-reset and invitation links.
@@ -36,11 +39,20 @@ function ResetPasswordPage() {
     schema: resetSchema,
     defaultValues: { password: "", confirm: "" },
     fieldMap: { new_password: "password" },
+    // A password-policy rejection is also a 400, so tell it apart from a dead
+    // link by the server's message.
+    badRequestField: (message) =>
+      isLinkProblem(message) ? undefined : "password",
     request: async ({ password }) => {
       try {
         await authApi.resetPassword({ token: token!, new_password: password })
       } catch (error) {
-        if ((error as { status?: number }).status === 400) setLinkInvalid(true)
+        if (
+          error instanceof ApiError &&
+          error.status === 400 &&
+          isLinkProblem(error.message)
+        )
+          setLinkInvalid(true)
         throw error
       }
     },
@@ -90,6 +102,12 @@ function ResetPasswordPage() {
                 field={field}
                 label="New password"
                 autoComplete="new-password"
+                below={
+                  <PasswordStrengthMeter
+                    password={field.state.value}
+                    weakNote="A password the server rejects can use up this link. Pick a stronger one."
+                  />
+                }
                 description="8-128 characters."
               />
             )}

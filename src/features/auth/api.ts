@@ -1,7 +1,7 @@
 import { http } from "@/lib/http"
 import { userSchema } from "@/features/users/schemas"
 import type { Role } from "@/features/users/schemas"
-import { tokenResponseSchema } from "./schemas"
+import { loginResponseSchema, tokenResponseSchema } from "./schemas"
 
 // Request bodies follow the field names in the frontend plan; keep every
 // wire-level name in this file so a DTO mismatch is a one-place fix.
@@ -15,9 +15,20 @@ export const authApi = {
       })
     ),
 
+  /** A session, or `{requires_totp, pending_token}` when the account has 2FA on. */
   login: async (body: { email: string; password: string }) =>
-    tokenResponseSchema.parse(
+    loginResponseSchema.parse(
       await http("/api/v1/auth/login", {
+        method: "POST",
+        body,
+        skipExpire: true,
+      })
+    ),
+
+  /** Second login step. A wrong code is a 401 that does not spend the pending token. */
+  verifyTotp: async (body: { pending_token: string; code: string }) =>
+    tokenResponseSchema.parse(
+      await http("/api/v1/auth/2fa/verify", {
         method: "POST",
         body,
         skipExpire: true,

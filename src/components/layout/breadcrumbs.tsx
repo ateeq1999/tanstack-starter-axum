@@ -32,12 +32,15 @@ function useUserCrumb(id: string | undefined) {
 function crumbsFor(segments: string[], userName: string): Crumb[] {
   const [area, second, third] = segments
   if (area === "profile") return [{ label: "Profile" }]
+  if (area === "media") return [{ label: "Media" }]
   if (area === "settings")
     return [
       { label: "Settings", to: "/settings/account" },
       { label: settingsTabs[second ?? "account"] ?? "Account" },
     ]
   if (area === "admin") {
+    if (second === "audit-log")
+      return [{ label: "Admin", to: "/admin" }, { label: "Audit log" }]
     if (second === "users") {
       return third
         ? [

@@ -33,6 +33,7 @@ import { FieldGroup } from "@/components/ui/field"
 import { Spinner } from "@/components/ui/spinner"
 import { toast } from "@/components/ui/toast"
 import { authApi } from "@/features/auth/api"
+import { PasswordStrengthMeter } from "@/features/auth/components/password-strength-meter"
 import { statsKeys } from "@/features/stats/queries"
 import {
   meQueryOptions,
@@ -69,6 +70,8 @@ export function CreateUserDialog({ open, onOpenChange }: DialogProps) {
       role: "user",
     },
     conflictField: "email",
+    // password-policy rejections are a 400, shown under the password field
+    badRequestField: "password",
     request: ({ display_name, ...rest }) =>
       create.mutateAsync({ ...rest, display_name: display_name || undefined }),
     onSuccess: (user) => {
@@ -105,6 +108,15 @@ export function CreateUserDialog({ open, onOpenChange }: DialogProps) {
                   field={f}
                   label="Password"
                   autoComplete="new-password"
+                  below={
+                    <PasswordStrengthMeter
+                      password={f.state.value}
+                      knownInputs={[
+                        f.form.state.values.email,
+                        f.form.state.values.display_name,
+                      ]}
+                    />
+                  }
                 />
               )}
             </form.Field>

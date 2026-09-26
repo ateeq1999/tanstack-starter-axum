@@ -60,7 +60,6 @@ function QrLoginBody({
   useEffect(() => {
     void start()
     // one session per time the dialog opens
-    // eslint-disable-next-line
   }, [])
 
   if (state.phase === "idle" || state.phase === "creating") {
