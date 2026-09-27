@@ -3,7 +3,6 @@ import { devtools } from "@tanstack/devtools-vite"
 import { tanstackStart } from "@tanstack/react-start/plugin/vite"
 import viteReact from "@vitejs/plugin-react"
 import tailwindcss from "@tailwindcss/vite"
-import { nitro } from "nitro/vite"
 
 const API_TARGET = process.env.API_PROXY_TARGET ?? "http://localhost:3000"
 
@@ -19,7 +18,6 @@ const config = defineConfig({
   },
   plugins: [
     devtools(),
-    nitro(),
     tailwindcss(),
     tanstackStart({ spa: { enabled: true } }),
     viteReact(),
